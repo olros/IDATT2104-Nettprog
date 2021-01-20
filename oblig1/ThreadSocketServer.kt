@@ -5,7 +5,7 @@ import java.net.ServerSocket
 import java.net.Socket
 
 class ThreadSocketServer(con: Socket) : Thread() {
-    val connection = con;
+    private val connection = con;
     override fun run() {
         val readConnection = InputStreamReader(connection.getInputStream())
         readConnection.use {
@@ -56,8 +56,7 @@ fun main() {
             println("Thread nr: ${i + 1} waiting for client")
             val t = ThreadSocketServer(connection)
             t.start()
-        }
-        catch (e:Exception) {
+        } catch (e: Exception) {
             println(e.message)
         }
     }
