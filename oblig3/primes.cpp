@@ -20,11 +20,11 @@ public:
     int num_of_elements = end - low;
     for (int i = 0; i < threads_amount; i++)
     {
-      pair<int, int> pair{
-          (i * num_of_elements / threads_amount) + low,
-          ((i + 1) * num_of_elements / threads_amount) + low};
-      cout << "Thread " << (i + 1) << " will analyze from " << pair.first + 1 << " to " << pair.second << " - " << (pair.second - pair.first) << " numbers." << endl;
-      threads.emplace_back([this, i, pair] {
+      threads.emplace_back([this, i, num_of_elements, threads_amount, low] {
+        pair<int, int> pair{
+            (i * num_of_elements / threads_amount) + low,
+            ((i + 1) * num_of_elements / threads_amount) + low};
+        cout << "Thread " << (i + 1) << " will analyze from " << pair.first + 1 << " to " << pair.second << " - " << (pair.second - pair.first) << " numbers." << endl;
         for (int n = pair.first + 1; n < pair.second; n++)
         {
           if (isPrime(n))
