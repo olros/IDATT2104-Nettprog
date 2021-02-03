@@ -1,10 +1,11 @@
 #include <iostream>
 #include <condition_variable>
 #include <thread>
-#include <functional>
 #include <list>
+#include <chrono>
 
 using namespace std;
+using namespace chrono;
 
 class Primes
 {
@@ -24,14 +25,13 @@ public:
         pair<int, int> pair{
             (i * num_of_elements / threads_amount) + low,
             ((i + 1) * num_of_elements / threads_amount) + low};
-        cout << "Thread " << (i + 1) << " will analyze from " << pair.first + 1 << " to " << pair.second << " - " << (pair.second - pair.first) << " numbers." << endl;
+        // cout << "Thread " << (i + 1) << " will analyze from " << pair.first + 1 << " to " << pair.second << " - " << (pair.second - pair.first) << " numbers." << endl;
         for (int n = pair.first + 1; n < pair.second; n++)
         {
           if (isPrime(n))
           {
-            primes_mutex.lock();
+            lock_guard<mutex> guard(primes_mutex);
             primes.emplace_back(n);
-            primes_mutex.unlock();
           }
         }
       });
@@ -75,5 +75,9 @@ public:
 
 int main()
 {
-  Primes(3, 50'000, 100);
+  auto start_time = high_resolution_clock::now();
+  Primes(3, 500'000, 100);
+  auto end_time = high_resolution_clock::now();
+  duration<double> elapsed_time = end_time - start_time;
+  cout << "Elapsed time: " << elapsed_time.count() << " s" << endl;
 }
