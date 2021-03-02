@@ -27,17 +27,17 @@ const requestListener = (req, res) => {
           if (code !== undefined) {
             writeToFile(code);
             const { exec } = require("child_process");
-            exec('docker build "./compile/" -t gcc', (buildError, buildLog) => {
+            exec('docker build "./compile/" -t gcc', (cmd, buildLog, buildError) => {
               if (buildError) {
                 error(res, 400, buildError);
               } else {
-                exec("docker run --rm gcc", (runError, runOutput) => {
+                exec("docker run --rm gcc", (cmd, runOutput, runError) => {
                   if (runError) {
                     error(res, 400, runError);
                   } else {
                     res.writeHead(200);
                     res.end(
-                      JSON.stringify({ result: `${buildLog}\n\n*** Output: ***\n${runOutput}` })
+                      JSON.stringify({ result: `${buildLog}\n\n--- Output: ---\n\n${runOutput}` })
                     );
                   }
                 });

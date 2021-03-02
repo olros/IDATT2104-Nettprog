@@ -35,6 +35,7 @@
         border-radius: 5px;
         border: 1px solid black;
         resize: none;
+        font-family: monospace;
       }
       button {
         color: black;
@@ -42,6 +43,8 @@
         border-radius: 5px;
         border: 1px solid black;
         cursor: pointer;
+        font-size: 20px;
+        font-weight: bold;
       }
       button:hover {
         background-color: cornsilk;
@@ -88,26 +91,29 @@ int main()
     <script>
       const info = document.getElementById("info");
       const outputArea = document.getElementById("outputArea");
-      const submitForm = (e) => {
+      const submitForm = async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
         const formObject = Object.fromEntries(formData);
         setInfo("Kompilerer...");
-        fetch("/api", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code: formObject.inputArea }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            setInfo("Kompileringen var vellykket");
-            outputArea.value = data.result;
-          })
-          .catch((error) => {
-            setInfo("Noe gikk galt, sjekk loggen");
-            outputArea.value = data.error;
-          })
-          .finally(() => setTimeout(() => setInfo(""), 5000));
+        try {
+          const response = await fetch("/api", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: formObject.inputArea }),
+          });
+          if (!response.ok) {
+            const data = await response.json();
+            throw Error(data.error);
+          }
+          const data = await response.json();
+          setInfo("Kompileringen var vellykket");
+          outputArea.value = data.result;
+        } catch (error) {
+          setInfo("Noe gikk galt, sjekk loggen");
+          outputArea.value = error;
+        }
+        setTimeout(() => setInfo(""), 5000);
       };
       const setInfo = (text) => (info.innerHTML = text);
     </script>
