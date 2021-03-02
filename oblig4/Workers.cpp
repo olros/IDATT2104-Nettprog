@@ -42,11 +42,11 @@ public:
               }
               cv.wait(lock);
             }
-            task = *tasks.begin(); // Copy task for later use
-            tasks.pop_front();     // Remove task from list
+            task = *tasks.begin();
+            tasks.pop_front();
           }
           if (task)
-            task(); // Run task outside of mutex lock
+            task();
         }
       });
     }
@@ -60,8 +60,10 @@ public:
 
   void post_timeout(function<void()> func, int ms)
   {
-    this_thread::sleep_for(chrono::milliseconds(ms));
-    post(func);
+    tasks.emplace_back([ms, func] {
+      this_thread::sleep_for(chrono::milliseconds(ms));
+      func();
+    });
   }
 
   void join()
@@ -92,7 +94,6 @@ int main()
     {
       worker_threads.post([i, &event_loop] {
         this_thread::sleep_for(2s);
-        // string result = "Result: " + i + ';';
 
         event_loop.post([i] {
           cout << "Result: " << i << ';' << endl;
@@ -102,7 +103,7 @@ int main()
 
     worker_threads.post_timeout([] {
       cout << "delayed" << endl;
-    }, 300);
+    }, 3000);
 
     this_thread::sleep_for(chrono::seconds(5));
 
